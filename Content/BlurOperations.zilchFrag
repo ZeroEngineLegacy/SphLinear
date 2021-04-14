@@ -1,0 +1,106 @@
+[Pixel][PostProcess]
+struct RowSumFragment
+{
+    [Input] var Uv : Real2;
+    [Input] var InputTexture : Sampler2d;
+    
+    [Output] var Target0 : Real4;
+    
+    function Main()
+    {
+      var value = Real4();
+      var size = this.InputTexture.SampleSize(0);
+      for(var i = 0; i < size.X; ++i)
+      {
+        var x = i / size.X as Real;
+        var uv = Real2(x, this.Uv.X);
+        value += this.InputTexture.Sample(uv);
+      }
+      
+      this.Target0 = value;
+    }
+}
+
+[Pixel][PostProcess]
+struct ColumnSumFragment
+{
+    [Input] var Uv : Real2;
+    [Input] var InputTexture : Sampler2d;
+    
+    [Output] var Target0 : Real4;
+    
+    function Main()
+    {
+      var value = Real4();
+      var size = this.InputTexture.SampleSize(0);
+      for(var i = 0; i < size.X; ++i)
+      {
+        var x = i / size.X as Real;
+        var uv = Real2(this.Uv.X, x);
+        value += this.InputTexture.Sample(uv);
+      }
+      
+      this.Target0 = value;
+    }
+}
+
+[Pixel][PostProcess]
+struct ColumnSumDensityFragment
+{
+    [Input] var Uv : Real2;
+    [Input] var InputTexture : Sampler2d;
+    [Input] var PositionMassTexture : Sampler2d;
+    
+    [Output] var Target0 : Real4;
+    
+    function Main()
+    {
+      var value = Real4();
+      var size = this.InputTexture.SampleSize(0);
+      //for(var i = 0; i < size.X; ++i)
+      //{
+      //  var x = i / size.X as Real;
+      //  var uv = Real2(x, this.Uv.X);
+      //  value += this.InputTexture.Sample(uv);
+      //}
+      var count = size.X;
+      for(var i = 0; i <= count; ++i)
+      {
+        var y = i / (count as Real);
+        var uv = Real2(this.Uv.X, y);
+        //uv.XY = uv.YX;
+        value += this.InputTexture.Sample(uv);
+      }
+      
+      var posMass = this.PositionMassTexture.Sample(this.Uv);
+      this.Target0 = Real4(posMass.XYZ, value.X);
+      //this.Target0 = posMass.XYZZ;
+    }
+}
+
+
+[Pixel][PostProcess]
+struct RowSumDensityFragment
+{
+    [Input] var Uv : Real2;
+    [Input] var InputTexture : Sampler2d;
+    [Input] var PositionMassTexture : Sampler2d;
+    
+    [Output] var Target0 : Real4;
+    
+    function Main()
+    {
+      var value = Real4();
+      var size = this.InputTexture.SampleSize(0);
+      var count = size.X;
+      for(var i = 0; i <= count; ++i)
+      {
+        var x = i / (count as Real);
+        var uv = Real2(x, this.Uv.X);
+        value += this.InputTexture.Sample(uv);
+      }
+      
+      var posMass = this.PositionMassTexture.Sample(this.Uv);
+      this.Target0 = Real4(posMass.XYZ, value.X);
+    }
+}

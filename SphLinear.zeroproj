@@ -1,0 +1,40 @@
+[Version:1]
+Cog 
+{
+	var Name = ""
+	Project 
+	{
+		var ProjectName = "SphLinear"
+		var ProjectOwner = ""
+		var DefaultLevel = "Level"
+		var ProjectSpace = "Space"
+		var ProjectEngineRevision = 14998
+		var AutoTakeProjectScreenshot = true
+		var Guid = 0x572a5829c2e3857f
+	}
+	EditorSettings 
+	{
+		var EditorMode = EditorMode.Mode3D
+		var ViewCube = true
+		var ViewCubeSize = 0.150000006
+		var ScriptReloadEditor = ScriptReloadMethod.ReInitializeObjects
+		var ScriptReloadGame = ScriptReloadMethod.PatchObjects
+		var AutoUpdateContentChanges = true
+	}
+	ProjectDescription 
+	{
+		var ShortDescription = ""
+		var LongDescription = ""
+		var Tags = ""
+	}
+	LauncherProjectInfo 
+	{
+		var Tags = ""
+		var ExperimentalBranchName = "BraveCobra"
+		var MajorVersion = 0
+		var MinorVersion = 0
+		var PatchVersion = 0
+		var RevisionId = 14998
+		var ShortChangeSet = ""
+	}
+}

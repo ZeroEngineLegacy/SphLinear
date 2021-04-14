@@ -1,0 +1,9 @@
+[Version:1]
+TextContent 
+{
+	ZilchFragmentBuilder 
+	{
+		var Name = "NBodyForce"
+		var ResourceId = 0x58ecbfa06da1f4b8
+	}
+}

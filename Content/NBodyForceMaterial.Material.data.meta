@@ -1,0 +1,12 @@
+[Version:1]
+DataContent 
+{
+	DataBuilder 
+	{
+		var Name = "NBodyForceMaterial"
+		var ResourceId = 0x58ecbe844d1ff80b
+		var LoaderType = "Material"
+		var Version = 0
+		var ShowInEditor = true
+	}
+}

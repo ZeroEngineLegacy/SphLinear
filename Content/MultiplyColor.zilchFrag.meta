@@ -1,0 +1,8 @@
+TextContent = 
+{
+	ZilchFragmentBuilder = 
+	{
+		string Name = "MultiplyColor",
+		uint64 ResourceId = 572b4e320c853654,
+	},
+},

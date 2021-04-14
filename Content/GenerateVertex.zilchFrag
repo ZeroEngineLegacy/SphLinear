@@ -1,0 +1,32 @@
+[Vertex]
+struct GenerateVertex
+{
+    [Input] var WorldToView : Real4x4;
+    [Input] var ViewToPerspective : Real4x4;
+    
+    [Input] var PositionTex : Sampler2d;
+    
+    [Output] var ViewPosition : Real3;
+    [Output] var ViewNormal : Real3;
+    [Output] var PointWidth : Real = 1.0;
+    [Input] var VertexId : Integer;
+    
+    function Main()
+    {
+        var texSize = this.PositionTex.SampleSize(0);
+        //var uv = Real2(this.VertexId % texSize.X, this.VertexId / texSize.X) / texSize;
+        var uv = Real2(this.VertexId % texSize.X, this.VertexId / texSize.X) / texSize;
+        //uv = Real2(this.VertexId, 0) / texSize.XY;
+        //var uv = Real2(0, 0);
+        
+        var halfPixel = Real2(0.5) / texSize;
+        var sample = this.PositionTex.Sample(uv + halfPixel);
+        var worldPos = Real3(sample.XY, 0);
+        var viewPos = Math.MultiplyPoint(this.WorldToView, worldPos);
+        //viewPos = Real3(this.PositionTex.Sample(uv).XY, 1);
+        
+        this.ViewPosition = viewPos;
+        this.ViewNormal = Real3(0, 0, 1);
+        this.PointWidth = 1;//Math.Sqrt(sample.W);
+    }
+}

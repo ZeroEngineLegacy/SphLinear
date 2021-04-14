@@ -1,0 +1,12 @@
+[Pixel]
+struct MultiplyColor
+{
+    [Input][Output] var Color : Real4 = Real4(1);
+    
+    [Input] var ColorMultiply : Real4 = Real4(1);
+    
+    function Main()
+    {
+        this.Color *= this.ColorMultiply;
+    }
+}

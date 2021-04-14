@@ -1,0 +1,68 @@
+[Pixel][PostProcess]
+struct NBodyIntegration
+{
+    [Input] var Dt : Real;
+    
+    [Input] var Uv : Real2;
+    [Input] var PositionMassTexture : Sampler2d;
+    [Input] var VelocityTexture : Sampler2d;
+    [Input] var ForceTexture : Sampler2d;
+    
+    [Output] var Target0 : Real4; // position.Xy, mass, massDensity
+    [Output] var Target1 : Real4; // vel.xy
+    
+    function SemiImplicitEuler(pos : Real2, vel : Real2, force : Real2, mass : Real, dt : Real) : Real4
+    {
+      var acceleration = (force / mass);
+      vel += acceleration * dt;
+      pos += vel * dt;
+      return Real4(pos.XY, vel.XY);
+    }
+    
+    //function Verlet(pos : Real2, vel : Real2, force : Real2, mass : Real, dt : Real) : Real4
+    //{
+    //  var acceleration = (force / mass);
+    //  vel += acceleration * dt;
+    //  pos += vel * dt;
+    //  return Real4(pos.XY, vel.XY);
+    //}
+    
+    function ComputeEdgeImpulse(pos : Real2) : Real2
+    {
+      var xLimits = Real2(-300, 300);
+      var yLimits = Real2(-300, 300);
+      var force = Real2();
+      if(pos.X < xLimits.X)
+        force += Real2(1, 0);
+      if(pos.X > xLimits.Y)
+        force += Real2(-1, 0);
+      if(pos.Y < yLimits.X)
+        force += Real2(0, 1);
+      if(pos.Y > yLimits.Y)
+        force += Real2(0, -1);
+      return force * 50;
+    }
+    
+    function Main()
+    {
+        var posMassSample = this.PositionMassTexture.Sample(this.Uv);
+        var velSample = this.VelocityTexture.Sample(this.Uv);
+        var forceSample = this.ForceTexture.Sample(this.Uv).XY;
+        
+        var pos = posMassSample.XY;
+        var massDensity = 1;//posMassSample.W;
+        var vel = velSample.XY;
+        var force = forceSample.XY;
+        vel += this.ComputeEdgeImpulse(pos);
+        
+        var result = Real4();
+        result = this.SemiImplicitEuler(pos, vel, force, massDensity, this.Dt);
+        
+        
+        pos = result.XY;
+        vel = result.ZW;
+        
+        this.Target0 = Real4(pos, posMassSample.ZW);
+        this.Target1 = Real4(vel, Real2());
+    }
+}

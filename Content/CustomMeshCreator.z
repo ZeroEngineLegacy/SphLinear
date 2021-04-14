@@ -1,0 +1,219 @@
+
+class TextureSwapChain
+{
+  var SwapCount : Integer = 2;
+  var Textures : Array[Texture] = Array[Texture]();
+  var Index : Integer = 0;
+  
+  function Create(size : Real2, format : TextureFormat)
+  {
+    for(var i = 0; i < this.SwapCount; ++i)
+    {
+      var texture = Texture.NewRuntime();
+      texture.Size = size;
+      texture.Format = format;
+      this.Textures.Add(texture);
+    }
+  }
+  
+  function Destroy()
+  {
+    foreach(var texture in this.Textures)
+      Texture.DeleteRuntime(texture);
+  }
+  
+  function GetTexture() : Texture
+  {
+    return this.Textures[this.Index];
+  }
+  
+  function GetTextureAndAdvance() : Texture
+  {
+    var texture = this.GetTexture();
+    this.Index = (this.Index + 1) % this.Textures.Count;
+    return texture;
+  }
+}
+
+class ParticleCreationEvent : ZilchEvent
+{
+  var Count : Integer;
+  var Size : Integer2 = Integer2(10, 10);
+  var PositionMassDensityTexture : Texture;
+  var VelocityTexture : Texture;
+  
+}
+
+class NBodyCreator : ZilchComponent
+{
+    [Dependency] var Model : Model;
+    [Dependency] var RandomContext : RandomContext;
+    
+    var MaterialClone : Material;
+    //var NBodyForceMaterial : Material;
+    
+    var ParticleMesh : Mesh;
+    
+    var PositionTextureChain : TextureSwapChain = TextureSwapChain();
+    var VelocityTextureChain : TextureSwapChain = TextureSwapChain();
+    var NBodyTextureChain : TextureSwapChain = TextureSwapChain();
+    
+    sends CreateParticles : ParticleCreationEvent;
+    
+    
+    [Property] var Color : Real4 = Real4(1, 0, 0, 1);
+    [Property] var ParticleCount : Integer = 3000;
+    
+    [Property] var GravitationalConstant : Real = 1.0;
+    [Property] var KernelSize : Real = 2.0;
+    [Property] var PressureConstant : Real = 1.0;
+    [Property] var ViscosityCoefficient : Real = 0.1;
+    var Dt : Real;
+    
+    function Initialize(init : CogInitializer)
+    {
+        Zero.Connect(this.Space, "AddRenderTasks", this.OnAddRenderTasks);
+        Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+        Zero.Connect(init, Events.AllObjectsInitialized, this.OnAllObjectsInitialized);
+    }
+
+    function OnAllObjectsInitialized(event : CogInitializerEvent)
+    {
+      this.Setup();
+    }
+    
+    function Setup()
+    {
+      this.Dt = 1 / 60.0;
+        var particleCount = this.ParticleCount;
+        
+        this.ParticleMesh = Mesh.NewRuntime();
+        this.ParticleMesh.PrimitiveType = PrimitiveType.Points;
+        this.ParticleMesh.Indices.Count = particleCount;
+        this.ParticleMesh.Upload();
+        this.Model.Mesh = this.ParticleMesh;
+        
+        var size = Math.Ceil(Math.Sqrt(particleCount));
+        var particleSize = Real2(size);
+        var format = TextureFormat.RGBA32f;
+        
+        
+        this.PositionTextureChain.SwapCount = 2;
+        this.PositionTextureChain.Create(particleSize, format);
+        this.VelocityTextureChain.SwapCount = 2;
+        this.VelocityTextureChain.Create(particleSize, format);
+        this.NBodyTextureChain.SwapCount = 2;
+        this.NBodyTextureChain.Create(particleSize, format);
+        
+        
+        
+        var positionTexture = this.PositionTextureChain.GetTexture();
+        var velocityTexture = this.VelocityTextureChain.GetTexture();
+        var toSend = ParticleCreationEvent() {Count = particleCount, Size = particleSize as Integer2, PositionMassDensityTexture = positionTexture, VelocityTexture = velocityTexture};
+        this.Owner.DispatchEvent(Events.CreateParticles, toSend);
+        
+        
+        this.MaterialClone = Material.GpuParticles.RuntimeClone() as Material;
+        this.MaterialClone.GenerateVertex.PositionTex = positionTexture;
+        this.Model.Material = this.MaterialClone;
+    }
+
+    function OnLogicUpdate(event : UpdateEvent)
+    {
+      this.Dt = event.Dt;
+    }
+    
+    function Destroyed()
+    {
+      this.PositionTextureChain.Destroy();
+      this.VelocityTextureChain.Destroy();
+      this.NBodyTextureChain.Destroy();
+         
+        Mesh.DeleteRuntime(this.ParticleMesh);
+    }
+    
+    function ComputeNBody(event : RenderTasksEvent)
+    {
+      var readPos = this.PositionTextureChain.GetTextureAndAdvance();
+      var writePos = this.PositionTextureChain.GetTexture();
+      var readVel = this.VelocityTextureChain.GetTextureAndAdvance();
+      var writeVel = this.VelocityTextureChain.GetTexture();
+      
+      
+      
+      
+      
+      
+      
+      //var renderSettings = RenderSettings();
+      //renderSettings.SetDepthRead(DepthTest.LessEqual);
+      //renderSettings.SetBlendAlpha();
+        
+      //  var format = TextureFormat.RGBA32f;
+      //  var count = this.ParticleCount;
+      //  var textureData = Graphics.TextureData(format, count, 1);
+      //  for(var i = 0; i < count; ++i)
+      //    textureData[i] = Real4();
+        
+      var clearForcesTarget = MultiRenderTarget();
+      clearForcesTarget.SetColorTarget(event.GetRenderTarget(this.NBodyTextureChain.GetTexture()), 0);
+      event.AddRenderTaskPostProcess(clearForcesTarget, ClearForces());
+        //forcesOut.Upload(textureData);
+      //event.AddRenderTaskRenderPass(target, renderSettings, RenderGroup.GpuParticles, renderPass);
+      var unroll = Math.Pow(2, 3) as Integer;
+      //Console.WriteLine(unroll);
+      var count = this.ParticleCount / unroll;
+      for(var i = 0; i < count; ++i)
+      {
+        var forcesIn = this.NBodyTextureChain.GetTextureAndAdvance();
+        var forcesOut = this.NBodyTextureChain.GetTexture();
+        
+        var renderPass = ForceRenderPass();
+        renderPass.PositionTexture = readPos;
+        renderPass.Index = i * unroll;
+        renderPass.Samples = unroll;
+        renderPass.InputForces = forcesIn;
+        
+        var forcesTarget = MultiRenderTarget();
+        forcesTarget.SetColorTarget(event.GetRenderTarget(forcesOut), 0);
+        
+        event.AddRenderTaskPostProcess(forcesTarget, renderPass);
+      }
+      
+      var forcesOut = this.NBodyTextureChain.GetTexture();
+      //var posDensityTarget = this.PositionTextureChain.GetTextureAndAdvance();
+      //var forceSum = this.PositionTextureChain.GetTextureAndAdvance();
+      //var writePos = this.PositionTextureChain.GetTexture();
+      //
+      //var readVel = this.VelocityTextureChain.GetTextureAndAdvance();
+      //var writeVel = this.VelocityTextureChain.GetTexture();
+      //
+      //this.ComputeDensity(event, readPos, posDensityTarget);
+      //this.ComputeForces(event, posDensityTarget, readVel, forceSum);
+      //
+      //
+      var integration = NBodyIntegration();
+      var targets = MultiRenderTarget();
+      
+      integration.Dt = this.Dt;
+      integration.PositionMassTexture = readPos;
+      integration.VelocityTexture = readVel;
+      integration.ForceTexture = forcesOut;
+      
+      targets.SetColorTarget(event.GetRenderTarget(writePos), 0);
+      targets.SetColorTarget(event.GetRenderTarget(writeVel), 1);
+      event.AddRenderTaskPostProcess(targets, integration);
+      
+      
+      this.MaterialClone.GenerateVertex.PositionTex = writePos;
+      
+      this.MaterialClone.MultiplyColor.ColorMultiply = this.Color;
+    }
+    
+    function OnAddRenderTasks(event : RenderTasksEvent)
+    {
+      var subIterations = 1;
+      for(var i = 0; i < subIterations; ++i)
+        this.ComputeNBody(event);
+    }
+}

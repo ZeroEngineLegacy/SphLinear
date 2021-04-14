@@ -1,0 +1,59 @@
+[RunInEditor]
+class MyRenderer : ZilchComponent
+{
+    [Property] var ClearColor : Real4 = Real4(0, 0, 0, 1);
+    [Property] var DrawDebug : Boolean = false;
+    
+    var TestTexture : Texture;
+
+    function Initialize(init : CogInitializer)
+    {
+        Zero.Connect(this.Owner, Events.RenderTasksUpdate, this.OnRenderTasksUpdate);
+        
+        //this.TestTexture = Texture.NewRuntime();
+        //this.TestTexture.Size = Real2(10, 10);
+        //this.TestTexture.Format = TextureFormat.RGBA8;
+        //this.TestTexture.SetPixel(1, 0, Real4(0.2, 0.5, 1, 0));
+        //this.TestTexture.Upload();
+    }
+    
+    function Destroyed()
+    {
+        //Texture.DeleteRuntime(this.TestTexture);
+    }
+
+    function OnRenderTasksUpdate(event : RenderTasksEvent)
+    {
+        var size = event.GetViewportSize();
+        var color = event.GetFinalTarget(size, TextureFormat.RGB8);
+        var depth = event.GetRenderTarget(size, TextureFormat.Depth32);
+
+        var opaqueSettings = RenderSettings() {CullMode = CullMode.BackFace};
+        opaqueSettings.SetDepthWrite(DepthTest.LessEqual);
+
+        var alphaSettings = RenderSettings();
+        alphaSettings.SetDepthRead(DepthTest.LessEqual);
+        alphaSettings.SetBlendAlpha();
+
+        var renderPass = DefaultRenderPass();
+
+        event.AddRenderTaskClearTarget(color, depth, this.ClearColor, 1.0);
+        event.AddRenderTaskRenderPass(color, depth, opaqueSettings, RenderGroup.DefaultRenderGroup, renderPass);
+        event.AddRenderTaskRenderPass(color, depth, alphaSettings, RenderGroup.AlphaBlend, renderPass);
+
+        if (this.DrawDebug)
+        {
+            event.AddRenderTaskRenderPass(color, depth, alphaSettings, RenderGroup.DebugDraw, renderPass);
+            event.AddRenderTaskRenderPass(color, null, alphaSettings, RenderGroup.DebugDrawOnTop, renderPass);
+        }
+        
+        this.Space.DispatchEvent("AddRenderTasks", event);
+        
+        alphaSettings.SetBlendAdditive();
+        event.AddRenderTaskRenderPass(color, depth, alphaSettings, RenderGroup.GpuParticles, renderPass);
+        
+        //var postCopy = PostCopy();
+        //postCopy.Texture = this.TestTexture;
+        //event.AddRenderTaskPostProcess(color, postCopy);
+    }
+}

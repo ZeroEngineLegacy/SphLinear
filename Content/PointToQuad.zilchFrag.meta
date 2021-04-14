@@ -1,0 +1,8 @@
+TextContent = 
+{
+	ZilchFragmentBuilder = 
+	{
+		string Name = "PointToQuad",
+		uint64 ResourceId = 572a7e0207ae4b9f,
+	},
+},

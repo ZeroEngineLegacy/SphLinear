@@ -1,0 +1,12 @@
+[Version:1]
+DataContent 
+{
+	DataBuilder 
+	{
+		var Name = "ForceMaterial"
+		var ResourceId = 0x585ad25f9903f056
+		var LoaderType = "Material"
+		var Version = 0
+		var ShowInEditor = true
+	}
+}

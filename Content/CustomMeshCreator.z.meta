@@ -1,0 +1,8 @@
+TextContent = 
+{
+	ZilchScriptBuilder = 
+	{
+		string Name = "CustomMeshCreator",
+		uint64 ResourceId = 572a5b6e472823fe,
+	},
+},

@@ -1,0 +1,31 @@
+//[Pixel][PostProcess]
+struct NBodyGravityFragment
+{
+  [FragmentInput][Input] var KernelSize : Real = 1.0;
+  [Input] var DeltaPositionP1P0 : Real2;
+  [Input] var Mass0 : Real;
+  [Input] var MassDensity0 : Real;
+  
+  [Input] var Mass1 : Real;
+  [Input] var MassDensity1 : Real;
+  
+  [Input] var GravitationalCoefficient : Real = 10.0;
+  
+  [Input][Output] var TotalForce : Real2;
+  
+  function Main()
+  {
+    var r = this.DeltaPositionP1P0;
+    var lengthSq = Math.LengthSq(r);
+    
+    var rNorm = Math.Normalize(r);
+    var length = Math.Length(r);
+    length = Math.Max(1, length);
+    var e = 0.01;
+    
+    var denom = (length * length * length + e * e);
+    var force = this.GravitationalCoefficient * this.Mass0 * this.Mass1 * r / denom;
+
+    this.TotalForce += Real2(0);
+  }
+}

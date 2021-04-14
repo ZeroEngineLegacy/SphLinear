@@ -1,0 +1,126 @@
+[Pixel][PostProcess]
+struct ForceRenderPass
+{
+  [Input] var Uv : Real2;
+  [Input] var Index : Integer = 0;
+  [Input] var InputForces : Sampler2d;
+  [Input] var PositionTexture : Sampler2d;
+  [Output] var Target0 : Real4;
+  [Input] var Samples : Integer;
+  
+  function Compute(pos0 : Real2, pos1 : Real2) : Real2
+  {
+    var r = -(pos1 - pos0);
+    var lengthSq = Math.LengthSq(r);
+    lengthSq = Math.Max(lengthSq, 1);
+    var invLengthSq = Math.RSqrt(lengthSq * lengthSq * lengthSq);
+    var force = r * invLengthSq;
+    return force;
+  }
+  
+  function Compute(index : Integer, pos1 : Real2, texSize : Integer2) : Real2
+  {
+    var testUv = Real2(index % texSize.X, index / texSize.X) / texSize;
+    var pos0 = this.PositionTexture.Sample(testUv).XY;
+    
+    
+    return this.Compute(pos0, pos1);
+  }
+
+  function Main()
+  {
+    
+    var texSize = this.PositionTexture.SampleSize(0);
+    var pos1 = this.PositionTexture.Sample(this.Uv).XY;
+    
+    var forces = this.InputForces.Sample(this.Uv).XY;
+    //forces += this.Compute(this.Index, pos1);
+    //for(var i = 0; i < this.Samples; ++i)
+    //{
+    //  forces += this.Compute(this.Index + i, pos1, texSize);
+    //}
+    
+    
+    forces += this.Compute(this.Index + 0, pos1, texSize);
+    forces += this.Compute(this.Index + 1, pos1, texSize);
+    forces += this.Compute(this.Index + 2, pos1, texSize);
+    forces += this.Compute(this.Index + 3, pos1, texSize);
+    forces += this.Compute(this.Index + 4, pos1, texSize);
+    forces += this.Compute(this.Index + 5, pos1, texSize);
+    forces += this.Compute(this.Index + 6, pos1, texSize);
+    forces += this.Compute(this.Index + 7, pos1, texSize);
+    forces += this.Compute(this.Index + 8, pos1, texSize);
+    forces += this.Compute(this.Index + 9, pos1, texSize);
+    forces += this.Compute(this.Index + 10, pos1, texSize);
+    forces += this.Compute(this.Index + 11, pos1, texSize);
+    forces += this.Compute(this.Index + 12, pos1, texSize);
+    forces += this.Compute(this.Index + 13, pos1, texSize);
+    forces += this.Compute(this.Index + 14, pos1, texSize);
+    forces += this.Compute(this.Index + 15, pos1, texSize);
+    forces += this.Compute(this.Index + 16, pos1, texSize);
+    forces += this.Compute(this.Index + 17, pos1, texSize);
+    forces += this.Compute(this.Index + 18, pos1, texSize);
+    forces += this.Compute(this.Index + 19, pos1, texSize);
+    forces += this.Compute(this.Index + 20, pos1, texSize);
+    forces += this.Compute(this.Index + 21, pos1, texSize);
+    forces += this.Compute(this.Index + 22, pos1, texSize);
+    forces += this.Compute(this.Index + 23, pos1, texSize);
+    forces += this.Compute(this.Index + 24, pos1, texSize);
+    forces += this.Compute(this.Index + 25, pos1, texSize);
+    forces += this.Compute(this.Index + 26, pos1, texSize);
+    forces += this.Compute(this.Index + 27, pos1, texSize);
+    forces += this.Compute(this.Index + 28, pos1, texSize);
+    forces += this.Compute(this.Index + 29, pos1, texSize);
+    forces += this.Compute(this.Index + 30, pos1, texSize);
+    forces += this.Compute(this.Index + 31, pos1, texSize);
+    forces += this.Compute(this.Index + 32, pos1, texSize);
+    //forces += this.Compute(this.Index + 33, pos1, texSize);
+    //forces += this.Compute(this.Index + 34, pos1, texSize);
+    //forces += this.Compute(this.Index + 35, pos1, texSize);
+    //forces += this.Compute(this.Index + 36, pos1, texSize);
+    //forces += this.Compute(this.Index + 37, pos1, texSize);
+    //forces += this.Compute(this.Index + 38, pos1, texSize);
+    //forces += this.Compute(this.Index + 39, pos1, texSize);
+    //forces += this.Compute(this.Index + 40, pos1, texSize);
+    //forces += this.Compute(this.Index + 41, pos1, texSize);
+    //forces += this.Compute(this.Index + 42, pos1, texSize);
+    //forces += this.Compute(this.Index + 43, pos1, texSize);
+    //forces += this.Compute(this.Index + 44, pos1, texSize);
+    //forces += this.Compute(this.Index + 45, pos1, texSize);
+    //forces += this.Compute(this.Index + 46, pos1, texSize);
+    //forces += this.Compute(this.Index + 47, pos1, texSize);
+    //forces += this.Compute(this.Index + 48, pos1, texSize);
+    //forces += this.Compute(this.Index + 49, pos1, texSize);
+    //forces += this.Compute(this.Index + 50, pos1, texSize);
+    //forces += this.Compute(this.Index + 51, pos1, texSize);
+    //forces += this.Compute(this.Index + 52, pos1, texSize);
+    //forces += this.Compute(this.Index + 53, pos1, texSize);
+    //forces += this.Compute(this.Index + 54, pos1, texSize);
+    //forces += this.Compute(this.Index + 55, pos1, texSize);
+    //forces += this.Compute(this.Index + 56, pos1, texSize);
+    //forces += this.Compute(this.Index + 57, pos1, texSize);
+    //forces += this.Compute(this.Index + 58, pos1, texSize);
+    //forces += this.Compute(this.Index + 59, pos1, texSize);
+    //forces += this.Compute(this.Index + 60, pos1, texSize);
+    //forces += this.Compute(this.Index + 61, pos1, texSize);
+    //forces += this.Compute(this.Index + 62, pos1, texSize);
+    //forces += this.Compute(this.Index + 63, pos1, texSize);
+    
+    
+    
+    
+    this.Target0 = Real4(forces.XY, Real2());
+  }
+}
+
+[Pixel][PostProcess]
+struct ClearForces
+{
+  [Output] var Target0 : Real4;
+  
+
+  function Main()
+  {
+    this.Target0 = Real4();
+  }
+}

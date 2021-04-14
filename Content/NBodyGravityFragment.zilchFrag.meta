@@ -1,0 +1,9 @@
+[Version:1]
+TextContent 
+{
+	ZilchFragmentBuilder 
+	{
+		var Name = "NBodyGravityFragment"
+		var ResourceId = 0x58ecb44a6ae6420b
+	}
+}

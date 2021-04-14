@@ -1,0 +1,8 @@
+TextContent = 
+{
+	ZilchFragmentBuilder = 
+	{
+		string Name = "ParticleIntegration",
+		uint64 ResourceId = 572b4b9efc812278,
+	},
+},

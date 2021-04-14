@@ -1,0 +1,36 @@
+class SphereCreator : ZilchComponent
+{
+  [Dependency] var RandomContext : RandomContext;
+  
+  [Property] var PositionRange : Real2 = Real2(0, 1);
+  [Property] var VelocityRange : Real2 = Real2(0, 0);
+  [Property] var MassRange : Real2 = Real2(1, 2);
+    
+  function Initialize(init : CogInitializer)
+  {
+    Zero.Connect(this.Owner, Events.CreateParticles, this.OnCreateParticles);
+  }
+
+  function OnCreateParticles(event : ParticleCreationEvent)
+  {
+    var count = event.Count;
+    
+    var format = TextureFormat.RGBA32f;
+    var positionData = Graphics.TextureData(format, event.Size.X, event.Size.Y);
+    var velocityData = Graphics.TextureData(format, event.Size.X, event.Size.Y);
+    
+    timeout (1000000)
+    {
+      for (var i = 0; i < count; ++i)
+      {
+        var pos = this.RandomContext.Vector2(this.PositionRange.X, this.PositionRange.Y);
+        var vel = this.RandomContext.Vector2(this.VelocityRange.X, this.VelocityRange.Y);
+        var mass = this.RandomContext.Range(this.MassRange.X, this.MassRange.Y);
+        positionData[i] = Real4(pos, mass, mass);
+        velocityData[i] = Real4(vel, 0, 0);
+      }
+    }
+    event.PositionMassDensityTexture.Upload(positionData);
+    event.VelocityTexture.Upload(velocityData);
+  }
+}

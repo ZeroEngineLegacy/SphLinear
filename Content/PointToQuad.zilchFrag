@@ -1,0 +1,133 @@
+struct PointData
+{
+    [Input] var ViewPosition : Real3;
+    [Input] var ViewNormal : Real3;
+    [Input] var PerspectivePosition : Real4;
+    [Input] var PointWidth : Real = 0.3;
+}
+
+struct TriangleData
+{
+    [Output] var ViewNormal : Real3;
+    [Output] var Uv : Real2;
+    [Output] var PerspectivePosition : Real4;
+}
+
+[Geometry(maxVertices : 6)]
+struct PointToQuad
+{
+    [Input] var ViewToPerspective : Real4x4;
+    
+    function Main(input : PointInput[PointData], output : TriangleOutput[TriangleData])
+    {
+        var vertices = FixedArray[TriangleData, 6]();
+        
+        var width = input[0].PointWidth;
+        var corners = FixedArray[Real3, 4]();
+        corners[0] = input[0].ViewPosition + Real3(-width,  width, 0); // TL
+        corners[1] = input[0].ViewPosition + Real3(-width, -width, 0); // BL
+        corners[2] = input[0].ViewPosition + Real3( width, -width, 0); // BR
+        corners[3] = input[0].ViewPosition + Real3( width,  width, 0); // TR
+        
+        var uvs = FixedArray[Real2, 4]();
+        uvs[0] = Real2(0, 0); // TL
+        uvs[1] = Real2(0, 1); // BL
+        uvs[2] = Real2(1, 1); // BR
+        uvs[3] = Real2(1, 0); // TR
+        
+        vertices[0].ViewNormal = input[0].ViewNormal;
+        vertices[1].ViewNormal = input[0].ViewNormal;
+        vertices[2].ViewNormal = input[0].ViewNormal;
+        vertices[3].ViewNormal = input[0].ViewNormal;
+        vertices[4].ViewNormal = input[0].ViewNormal;
+        vertices[5].ViewNormal = input[0].ViewNormal;
+        
+        vertices[0].Uv = uvs[0];
+        vertices[1].Uv = uvs[1];
+        vertices[2].Uv = uvs[2];
+        vertices[3].Uv = uvs[2];
+        vertices[4].Uv = uvs[3];
+        vertices[5].Uv = uvs[0];
+        
+        vertices[0].PerspectivePosition = Math.Multiply(this.ViewToPerspective, Real4(corners[0], 1.0));
+        vertices[1].PerspectivePosition = Math.Multiply(this.ViewToPerspective, Real4(corners[1], 1.0));
+        vertices[2].PerspectivePosition = Math.Multiply(this.ViewToPerspective, Real4(corners[2], 1.0));
+        vertices[3].PerspectivePosition = Math.Multiply(this.ViewToPerspective, Real4(corners[2], 1.0));
+        vertices[4].PerspectivePosition = Math.Multiply(this.ViewToPerspective, Real4(corners[3], 1.0));
+        vertices[5].PerspectivePosition = Math.Multiply(this.ViewToPerspective, Real4(corners[0], 1.0));
+        
+        output.Append(vertices[0], 0);
+        output.Append(vertices[1], 0);
+        output.Append(vertices[2], 0);
+        output.Restart();
+        
+        output.Append(vertices[3], 0);
+        output.Append(vertices[4], 0);
+        output.Append(vertices[5], 0);
+        output.Restart();
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        //var points = FixedArray[TriangleData, 6]();
+        //points[0] = input[0];
+        //points[1] = input[1];
+        //points[2] = input[2];
+        //points[3] = input[0];
+        //points[4] = input[1];
+        //points[5] = input[2];
+        
+        //points[3].LocalPosition = (input[0].LocalPosition + input[1].LocalPosition) * 0.5;
+        //points[4].LocalPosition = (input[1].LocalPosition + input[2].LocalPosition) * 0.5;
+        //points[5].LocalPosition = (input[2].LocalPosition + input[0].LocalPosition) * 0.5;
+        
+        //var frequency = (input[0].Uv.X * input[0].Uv.Y) * 5.0;
+        ////var m = this.BuildRotationMatrix(input[0].LocalTangent, frequency);
+        //var m = Math.ToReal3x3(input[0].LocalTangent, this.FrameTime * frequency);
+        
+        //var center = (points[0].LocalPosition + points[1].LocalPosition + points[2].LocalPosition) / 3.0;
+        //center += input[0].LocalNormal * Math.Sin(this.FrameTime);
+        //for(var i = 0; i < 6; ++i)
+        //{
+        //    var dir = points[i].LocalPosition - center;
+        //    dir = Math.Multiply(m, dir);
+        //    points[i].LocalPosition = center + dir * 0.75;
+        //    points[i].PerspectivePosition = Math.Multiply(this.LocalToPerspective, Real4(points[i].LocalPosition, 1));
+        //}
+        
+        //var color = 1;//(Math.Sin(this.FrameTime) + 1) / 2.0;
+        
+        //points[0].Color = Real4(color, 0, 0, 1);
+        //points[3].Color = Real4(color, 0, 0, 1);
+        //points[5].Color = Real4(color, 0, 0, 1);
+        //output.Append(points[0], 0);
+        //output.Append(points[3], 0);
+        //output.Append(points[5], 0);
+        //output.Restart();
+        
+        //points[3].Color = Real4(0, color, 0, 1);
+        //points[1].Color = Real4(0, color, 0, 1);
+        //points[4].Color = Real4(0, color, 0, 1);
+        //output.Append(points[3], 0);
+        //output.Append(points[1], 0);
+        //output.Append(points[4], 0);
+        //output.Restart();
+        
+        //points[5].Color = Real4(0, 0, color, 1);
+        //points[4].Color = Real4(0, 0, color, 1);
+        //points[2].Color = Real4(0, 0, color, 1);
+        //output.Append(points[5], 0);
+        //output.Append(points[4], 0);
+        //output.Append(points[2], 0);
+        //output.Restart();
+    }
+}

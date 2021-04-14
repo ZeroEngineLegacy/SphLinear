@@ -1,0 +1,7 @@
+ContentLibrary = 
+{
+	string Name = "TestGeometryShaders",
+	uint64 LibraryId = 572a5829c217e841,
+	string SourceControlType = "",
+	bool ReadOnly = false,
+},

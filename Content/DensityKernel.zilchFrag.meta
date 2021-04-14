@@ -1,0 +1,9 @@
+[Version:1]
+TextContent 
+{
+	ZilchFragmentBuilder 
+	{
+		var Name = "DensityKernel"
+		var ResourceId = 0x58d28e60fa5bdd36
+	}
+}

@@ -1,0 +1,9 @@
+[Version:1]
+TextContent 
+{
+	ZilchFragmentBuilder 
+	{
+		var Name = "ForceRenderPass"
+		var ResourceId = 0x585ad0b1564ee9e7
+	}
+}

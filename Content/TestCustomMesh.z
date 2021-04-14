@@ -1,0 +1,53 @@
+class TestCustomMesh : ZilchComponent
+{
+    [Dependency] var Model : Model;
+    
+    var MaterialClone : Material;
+    var CustomMesh : Mesh;
+    
+    function Initialize(init : CogInitializer)
+    {
+        this.CustomMesh = Mesh.NewRuntime();
+        
+        var vertices = this.CustomMesh.Vertices;
+        vertices.AddAttribute(VertexSemantic.Position, VertexElementType.Real, 3);
+        vertices.AddAttribute(VertexSemantic.Normal, VertexElementType.Real, 3);
+        vertices.AddAttribute(VertexSemantic.Uv, VertexElementType.Real, 2);
+        
+        vertices.AddReal(Real3(-1, 1, 0));
+        vertices.AddReal(Real3(0, 0, 1));
+        vertices.AddReal(Real2(0, 0));
+        
+        vertices.AddReal(Real3(-1, -1, 0));
+        vertices.AddReal(Real3(0, 0, 1));
+        vertices.AddReal(Real2(0, 1));
+        
+        vertices.AddReal(Real3(1, -1, 0));
+        vertices.AddReal(Real3(0, 0, 1));
+        vertices.AddReal(Real2(1, 1));
+        
+        vertices.AddReal(Real3(1, -1, 0));
+        vertices.AddReal(Real3(0, 0, 1));
+        vertices.AddReal(Real2(1, 1));
+        
+        vertices.AddReal(Real3(1, 1, 0));
+        vertices.AddReal(Real3(0, 0, 1));
+        vertices.AddReal(Real2(1, 0));
+        
+        vertices.AddReal(Real3(-1, 1, 0));
+        vertices.AddReal(Real3(0, 0, 1));
+        vertices.AddReal(Real2(0, 0));
+        
+        //this.CustomMesh.GetIndices().SetCount(6);
+        //var indices = this.CustomMesh.GetIndices();
+        //indices.Add(0);
+        //indices.Add(1);
+        //indices.Add(2);
+        //indices.Add(2);
+        //indices.Add(3);
+        //indices.Add(0);
+        
+        this.CustomMesh.Upload();
+        this.Model.Mesh = this.CustomMesh;
+    }
+}

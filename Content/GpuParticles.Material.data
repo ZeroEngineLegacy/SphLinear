@@ -1,0 +1,29 @@
+[Version:1]
+Material 
+{
+	var RenderGroups = Array
+	{
+		"572a59ed05a0c34a:GpuParticles"
+	}
+	GenerateVertex 
+	{
+		var WorldToView = Mat4{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+		var ViewToPerspective = Mat4{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+		var PositionTex = "4fab71e8bcb7a8ce:DefaultTexture"
+		var VertexId = 0
+	}
+	PointToQuad 
+	{
+		var ViewToPerspective = Mat4{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+	}
+	TextureColor 
+	{
+		var Uv = Vec2{0, 0}
+		var Texture = "5310e87a46fb0d8e:Laser"
+	}
+	MultiplyColor 
+	{
+		var Color = Vec4{1, 1, 1, 1}
+		var ColorMultiply = Vec4{0.564999998, 0.19492501, 0.195147008, 1}
+	}
+}

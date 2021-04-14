@@ -1,0 +1,47 @@
+[Pixel][PostProcess]
+struct NBodyPressureFragment
+{
+  [FragmentInput][Input] var KernelSize : Real = 1.0;
+  [Input] var DeltaPositionP1P0 : Real2;
+  [Input] var Position0 : Real2;
+  [Input] var Position1 : Real2;
+  [Input] var Mass0 : Real;
+  [Input] var Mass1 : Real;
+  [Input] var MassDensity0 : Real;
+  [Input] var MassDensity1 : Real;
+  
+  [Input] var PressureCoefficient : Real = 10.0;
+  
+  [Input][Output] var TotalForce : Real2;
+  
+  function Kernel(deltaR : Real2) : Real2
+  {
+    var deltaRLength = Math.Length(deltaR);
+    var delta = Math.Max(this.KernelSize - deltaRLength, 0);
+    var scalar = -45 / (Math.Pi * Math.Pow(this.KernelSize, 6));
+    scalar *= delta * delta;
+    
+    var result = Real2();
+    if(deltaRLength == 0)
+      result = Real2();
+    else
+      result = scalar * deltaR / deltaRLength;
+    
+    
+    return result;
+  }
+  
+  function Main()
+  {
+    var pressure0 = this.MassDensity0 * this.PressureCoefficient;
+    var pressure1 = this.MassDensity1 * this.PressureCoefficient;
+    
+    var r = -this.DeltaPositionP1P0;
+    
+    var kernelScalar = this.Kernel(r);
+    var massRatio = this.Mass0 / this.MassDensity0;
+    var pressureForce = -(pressure0 + pressure1) * 0.5 * massRatio * kernelScalar;
+    
+    this.TotalForce += pressureForce;
+  }
+}

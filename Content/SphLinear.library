@@ -1,0 +1,8 @@
+[Version:1]
+ContentLibrary 
+{
+	var Name = "SphLinear"
+	var LibraryId = 0x585adf82eeff8f2b
+	var SourceControlType = ""
+	var ReadOnly = false
+}

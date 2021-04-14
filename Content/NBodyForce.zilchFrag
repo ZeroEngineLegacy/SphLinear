@@ -1,0 +1,95 @@
+[Pixel][PostProcess]
+struct NBodyForce
+{
+    [Input] var Uv : Real2;
+    [Input] var PositionMassTexture : Sampler2d;
+    [Input] var VelocityTexture : Sampler2d;
+    
+    [Output] var Position0 : Real2;
+    [Output] var Velocity0 : Real2;
+    [Output] var Mass0 : Real;
+    [Output] var MassDensity0 : Real;
+    
+    [Output] var Position1 : Real2;
+    [Output] var Velocity1 : Real2;
+    [Output] var Mass1 : Real;
+    [Output] var MassDensity1 : Real;
+    
+    [Input] var DeltaPositionP1P0 : Real2;
+    [Input] var DeltaVelocityV1V0 : Real2;
+    
+    [Input] var KernelSize : Real;
+    [Input] var GravitationalCoefficient : Real;
+    [Input] var PressureCoefficient : Real;
+    [Input] var ViscosityCoefficient : Real;
+    
+    [Output] var Target0 : Real4;
+    var UnitScale : Real = 1.0;
+
+    function Main()
+    {
+      var coords0 = Real2(this.Uv.X, 0);
+      var coords1 = Real2(this.Uv.Y, 0);
+      
+      var data0 = this.PositionMassTexture.Sample(coords0);
+      var data1 = this.PositionMassTexture.Sample(coords1);
+      var vel0 = this.VelocityTexture.Sample(coords0);
+      var vel1 = this.VelocityTexture.Sample(coords1);
+      
+      this.Position0 = data0.XY * this.UnitScale;
+      this.Velocity0 = vel0.XY * this.UnitScale;
+      this.Mass0 = data0.Z;
+      this.MassDensity0 = data0.W;
+      
+      this.Position1 = data1.XY * this.UnitScale;
+      this.Velocity1 = vel1.XY * this.UnitScale;
+      this.Mass1 = data1.Z;
+      this.MassDensity1 = data1.W;
+      
+      this.DeltaPositionP1P0 = this.Position0 - this.Position1;
+      this.DeltaVelocityV1V0 = this.Velocity0 - this.Velocity1;
+      
+      var gravity = NBodyGravityFragment();
+      gravity.Mass0 = this.MassDensity0;
+      gravity.Mass1 = this.MassDensity1;
+      gravity.DeltaPositionP1P0 = this.DeltaPositionP1P0;
+      gravity.TotalForce = this.Target0.XY;
+      gravity.GravitationalCoefficient = this.GravitationalCoefficient;
+      gravity.Main();
+      
+      var pressure = NBodyPressureFragment();
+      pressure.KernelSize = this.KernelSize;
+      pressure.Mass0 = this.Mass0;
+      pressure.Mass1 = this.Mass1;
+      pressure.MassDensity0 = this.MassDensity0;
+      pressure.MassDensity1 = this.MassDensity1;
+      pressure.DeltaPositionP1P0 = this.DeltaPositionP1P0;
+      pressure.Position0 = this.Position0;
+      pressure.Position1 = this.Position1;
+      pressure.PressureCoefficient = this.PressureCoefficient;
+      pressure.TotalForce = gravity.TotalForce;
+      pressure.Main();
+      
+      var viscosity = NBodyViscosityFragment();
+      viscosity.KernelSize = this.KernelSize;
+      viscosity.Mass0 = this.Mass0;
+      viscosity.Mass1 = this.Mass1;
+      viscosity.MassDensity0 = this.MassDensity0;
+      viscosity.MassDensity1 = this.MassDensity1;
+      viscosity.DeltaPositionP1P0 = this.DeltaPositionP1P0;
+      viscosity.DeltaVelocityV1V0 = this.DeltaVelocityV1V0;
+      viscosity.ViscosityCoefficient = this.ViscosityCoefficient;
+      viscosity.TotalForce = pressure.TotalForce;
+      viscosity.Main();
+      
+      var totalForce =  viscosity.TotalForce;
+      
+      
+      
+      this.Target0 = Real4(totalForce, 0, 0);
+      if(this.Uv.X == this.Uv.Y)
+      {
+        this.Target0 = Real4(); 
+      }
+    }
+}

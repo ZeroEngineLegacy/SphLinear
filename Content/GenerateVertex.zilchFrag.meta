@@ -1,0 +1,8 @@
+TextContent = 
+{
+	ZilchFragmentBuilder = 
+	{
+		string Name = "GenerateVertex",
+		uint64 ResourceId = 572a4d92278a72ad,
+	},
+},

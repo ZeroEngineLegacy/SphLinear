@@ -1,0 +1,36 @@
+//[Pixel][PostProcess]
+struct NBodyViscosityFragment
+{
+  [FragmentInput][Input] var KernelSize : Real = 1.0;
+  [Input] var DeltaPositionP1P0 : Real2;
+  [Input] var DeltaVelocityV1V0 : Real2;
+  [Input] var MassDensity0 : Real;
+  [Input] var MassDensity1 : Real;
+  [Input] var Mass0 : Real;
+  [Input] var Mass1 : Real;
+  
+  [Input] var ViscosityCoefficient : Real = 10.0;
+  
+  [Input][Output] var TotalForce : Real2;
+  
+  function Kernel(deltaR : Real2) : Real
+  {
+    var scalar = 45.0 / (Math.Pi * Math.Pow(this.KernelSize, 6));
+    var result = scalar * (this.KernelSize - Math.Length(deltaR));
+    return Math.Max(result, 0);
+  }
+  
+  function Main()
+  {
+    var r = this.DeltaPositionP1P0;
+    var v = this.DeltaVelocityV1V0;
+    var length = Math.Length(r);
+    
+    var kernelScalar = this.Kernel(r);
+    var massRation = this.Mass0 / this.MassDensity1;
+    var scalar = this.ViscosityCoefficient * massRation * kernelScalar;
+    var viscosityForce1 = scalar * v;
+
+    this.TotalForce += viscosityForce1;
+  }
+}

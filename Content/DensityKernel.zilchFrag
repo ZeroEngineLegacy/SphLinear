@@ -1,0 +1,41 @@
+[Pixel][PostProcess]
+struct DensityKernel
+{
+  [Input] var KernelSize : Real;
+  [Input] var PositionMassDensityTexture : Sampler2d;
+  [Input] var Uv : Real2;
+  
+  [Output] var Target0 : Real4;
+  
+  function Kernel(deltaR : Real2) : Real
+  {
+    if(Math.Length(deltaR) > this.KernelSize)
+    return 0;
+    //return 1;
+    
+    var scalar = 315 / (64 * Math.Pi * Math.Pow(this.KernelSize, 9));
+    var length = Math.Length(deltaR);
+    
+    var delta = this.KernelSize * this.KernelSize - length * length;
+    var result = scalar * delta * delta * delta;
+    return Math.Max(result, 0);
+  }
+  
+  function Main()
+  {
+    var obj0Uv = Real2(this.Uv.X, 0);
+    var obj1Uv = Real2(this.Uv.Y, 0);
+    var obj0Data = this.PositionMassDensityTexture.Sample(obj0Uv);
+    var obj1Data = this.PositionMassDensityTexture.Sample(obj1Uv);
+    
+    var pos0 = obj0Data.XY;
+    var mass0 = obj0Data.Z;
+    var pos1 = obj1Data.XY;
+    var mass1 = obj1Data.Z;
+    
+    var deltaR = pos1 - pos0;
+    var density1 = mass0 * this.Kernel(deltaR);
+    this.Target0 = Real4(density1);
+    //this.Target0 = Real4(1 / 2000.0);
+  }
+}

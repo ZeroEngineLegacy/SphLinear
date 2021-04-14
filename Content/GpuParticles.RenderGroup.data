@@ -1,0 +1,9 @@
+[Version:1]
+RenderGroup 
+{
+	var Materials = Array
+	{
+		"572a58c7cb43b494:GpuParticles"
+	}
+	var GraphicalSortMethod = GraphicalSortMethod.None
+}
